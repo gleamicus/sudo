@@ -44,7 +44,7 @@ property :setenv, [true, false], default: false
 property :env_keep_add, Array, default: []
 property :env_keep_subtract, Array, default: []
 property :visudo_path, String # legacy placeholder for cookbook users. We raise when used below
-property :visudo_binary, String, default: '/usr/sbin/visudo'
+property :visudo_binary, String, default: lazy { platform_visudo_path }
 property :config_prefix, String, default: lazy { platform_config_prefix }
 
 # handle legacy cookbook property
@@ -63,6 +63,17 @@ def coerce_groups(x)
 
   # make sure all the groups start with %
   groups.map { |g| g[0] == '%' ? g : "%#{g}" }
+end
+
+# default visudo path based on platform
+# @return [String]
+def platform_visudo_path
+  case node['platform_family']
+  when 'freebsd'
+    '/usr/local/sbin/visudo'
+  else
+    '/usr/sbin/visudo'
+  end
 end
 
 # default config prefix paths based on platform
